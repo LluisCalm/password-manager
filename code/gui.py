@@ -8,29 +8,66 @@ add_pass = "Save new password"
 obtain_pass = "Obtain password"
 change_pass = "Change password"
 
-# Search the events.json or creates it 
+password_list = []
+sites_list = []
+
 def verify_json():
-    if os.path.isfile('events.json'):
+    if os.path.isfile('passwords.json'):
         return
     
     events = {}
-    events['events'] = []
-    with open("events.json","w") as f:
+    events['passwords'] = []
+    with open("passwords.json","w") as f:
         json.dump(events,f)
 
+
+def obtain_passwords():
+    with open('passwords.json') as x:
+        data = json.load(x)['passwords']
+    
+    for x in data:
+        password_list.append(Password(x['site'],x['pass']))
+    
+
 def is_site(site):
+    for x in password_list:
+        if x.get_site() == site:
+            return True
     return False
 
-def obtain_password():
-    print(site_selector.get)
-
 def save_password():
+
     if master_key_entry.get() == "" or site_entry.get() == "" or password_entry.get() == "":
         CTkMessagebox(title="Warning", message="One or more fields are empty")
+        return
     
     if is_site(site_entry.get()):
         CTkMessagebox(title="Warning", message="This site has alredy a password saved")
+        return
+    
+    password_list.append(Password(site_entry.get(), password_entry.get()))
+    sites_list.append(site_entry.get())
+    save_json()
+    
+    
+
+def change_password():
     print("a")
+
+
+def save_json():
+    to_save = {}
+    to_save['passwords']=[]
+    for x in password_list:
+        to_save['passwords'].append({'site' : x.get_site(), 'pass' : x.get_pass()})
+
+    with open("passwords.json","w") as f:
+        json.dump(to_save, f)
+
+
+# First actions:
+verify_json()
+obtain_passwords()
 
 
 ###########
@@ -59,18 +96,18 @@ password_entry.pack(pady=10)
 save_button.pack(pady=10)
 
 # Obtain password tab
-site_selector = ctk.CTkOptionMenu(options_tab.tab(obtain_pass),values=["option 1", "option 2"]) # En un futuro aqui poner el string
-obtain_button = ctk.CTkButton(options_tab.tab(obtain_pass),text="Obtain", command=obtain_password)
+site_selector = ctk.CTkOptionMenu(options_tab.tab(obtain_pass),values=sites_list)
+obtain_button = ctk.CTkButton(options_tab.tab(obtain_pass),text="Obtain", command=obtain_passwords)
 
 site_selector.pack(pady=10)
 obtain_button.pack(pady=10)
 
 # Change password tab
-site_selector = ctk.CTkOptionMenu(options_tab.tab(change_pass),values=["option 1", "option 2"]) # En un futuro aqui poner el string
+site_selector = ctk.CTkOptionMenu(options_tab.tab(change_pass),values=sites_list)
 master_key_entry_ch = ctk.CTkEntry(options_tab.tab(change_pass),placeholder_text="Master key")
 current_password_entry = ctk.CTkEntry(options_tab.tab(change_pass),placeholder_text="Current password")
 new_password_entry = ctk.CTkEntry(options_tab.tab(change_pass),placeholder_text="New password")
-obtain_button = ctk.CTkButton(options_tab.tab(change_pass),text="Change", command=obtain_password)
+obtain_button = ctk.CTkButton(options_tab.tab(change_pass),text="Change", command=change_password)
 
 site_selector.pack(pady=10)
 master_key_entry_ch.pack(pady=10)

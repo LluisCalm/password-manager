@@ -14,11 +14,18 @@ change_pass = "Change password"
 password_list = []
 sites_list = []
 
+
+
 def gen_fernet_key(passcode:bytes) -> bytes:
     assert isinstance(passcode, bytes)
     hlib = hashlib.md5()
     hlib.update(passcode)
     return base64.urlsafe_b64encode(hlib.hexdigest().encode('latin-1'))
+
+def cyper_pass():
+    key = gen_fernet_key(master_key_entry.get().encode('utf-8'))
+    fernet = Fernet(key)
+    return fernet.encrypt(password_entry.get().encode('utf-8'))
 
 def verify_json():
     if os.path.isfile('passwords.json'):
@@ -55,9 +62,8 @@ def save_password():
         CTkMessagebox(title="Warning", message="This site has alredy a password saved")
         return
     
-    key = gen_fernet_key(master_key_entry.get().encode('utf-8'))
-    fernet = Fernet(key)
-    cypher_password = fernet.encrypt(password_entry.get().encode('utf-8'))
+    cypher_password = cyper_pass()
+
     password_list.append(Password(site_entry.get(), cypher_password.decode("utf-8") ))
     sites_list.append(site_entry.get())
     
@@ -111,6 +117,7 @@ save_button.pack(pady=10)
 
 # Obtain password tab
 site_selector = ctk.CTkOptionMenu(options_tab.tab(obtain_pass),values=sites_list)
+master_key_selector = ctk.CTkEntry(options_tab.tab(obtain_pass),placeholder_text="Master key")
 obtain_button = ctk.CTkButton(options_tab.tab(obtain_pass),text="Obtain", command=obtain_passwords)
 
 site_selector.pack(pady=10)

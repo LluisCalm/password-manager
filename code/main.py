@@ -3,13 +3,22 @@ from password import Password
 from CTkMessagebox import CTkMessagebox
 import os
 import json
+import base64
+import os
 from cryptography.fernet import Fernet
+import base64, hashlib
 
 add_pass = "Save new password"
 obtain_pass = "Obtain password"
 change_pass = "Change password"
 password_list = []
 sites_list = []
+
+def gen_fernet_key(passcode:bytes) -> bytes:
+    assert isinstance(passcode, bytes)
+    hlib = hashlib.md5()
+    hlib.update(passcode)
+    return base64.urlsafe_b64encode(hlib.hexdigest().encode('latin-1'))
 
 def verify_json():
     if os.path.isfile('passwords.json'):
@@ -46,8 +55,12 @@ def save_password():
         CTkMessagebox(title="Warning", message="This site has alredy a password saved")
         return
     
-    password_list.append(Password(site_entry.get(), password_entry.get()))
+    key = gen_fernet_key(master_key_entry.get().encode('utf-8'))
+    fernet = Fernet(key)
+    cypher_password = fernet.encrypt(password_entry.get().encode('utf-8'))
+    password_list.append(Password(site_entry.get(), cypher_password.decode("utf-8") ))
     sites_list.append(site_entry.get())
+    
     save_json()
     
     

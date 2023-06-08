@@ -3,11 +3,11 @@ from password import Password
 from CTkMessagebox import CTkMessagebox
 import os
 import json
+from cryptography.fernet import Fernet
 
 add_pass = "Save new password"
 obtain_pass = "Obtain password"
 change_pass = "Change password"
-
 password_list = []
 sites_list = []
 
@@ -27,6 +27,7 @@ def obtain_passwords():
     
     for x in data:
         password_list.append(Password(x['site'],x['pass']))
+        sites_list.append(x['site'])
     
 
 def is_site(site):

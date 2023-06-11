@@ -36,7 +36,6 @@ def save_json():
     to_save = {}
     to_save['passwords']=[]
     for x in password_list:
-        print(f" pass before saving: {x.get_pass()}")
         to_save['passwords'].append({'site' : x.get_site(), 'pass' : x.get_pass()})
 
     with open("passwords.json","w") as f:

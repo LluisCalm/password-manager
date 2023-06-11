@@ -10,7 +10,6 @@ import base64, hashlib
 
 add_pass = "Save new password"
 obtain_pass = "Obtain password"
-change_pass = "Change password"
 password_list = []
 sites_list = []
 

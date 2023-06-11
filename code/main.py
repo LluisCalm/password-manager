@@ -79,6 +79,7 @@ def obtain_password():
     
     clear_password = decrypt_pass(password, master_key_selector.get())
 
+    app.clipboard_clear()
     app.clipboard_append(clear_password)
     CTkMessagebox(title="Info", message="Password copied to clipboard")
     
